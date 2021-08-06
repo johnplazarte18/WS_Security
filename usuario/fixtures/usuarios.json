@@ -1,0 +1,26 @@
+[
+    {
+      "model": "usuario.usuarios",
+      "pk": 1,
+      "fields": {
+        "nombre": "CARLOS IVAN ALMEIDA DUEÑAS",
+        "usuario": "calmeidad",
+        "rol": "AD",
+        "clave": "carlos123456",
+        "estado": "True",
+        "ruta_foto": "Perfiles/usuario_1.PNG"
+      }
+    },
+    {
+        "model": "usuario.usuarios",
+        "pk": 2,
+        "fields": {
+          "nombre": "JOHN GARY PLAZARTE SUÁREZ",
+          "usuario": "jplazartes",
+          "rol": "US",
+          "clave": "carlos123456",
+          "estado": "True",
+          "ruta_foto": "Perfiles/usuario_2.PNG"
+        }
+      }
+  ]

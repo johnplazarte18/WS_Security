@@ -1,0 +1,20 @@
+[
+    {
+      "model": "seguridad.historial",
+      "pk": 1,
+      "fields": {
+        "unComponente_id": 3,
+        "fecha": "2021-08-05",
+        "tipo": "Anomalía"
+      }
+    },
+    {
+        "model": "seguridad.historial",
+        "pk": 2,
+        "fields": {
+          "unComponente_id": 4,
+          "fecha": "2021-08-06",
+          "tipo": "Solicitado"
+        }
+    }
+  ]

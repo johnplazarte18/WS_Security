@@ -1,0 +1,47 @@
+[
+    {
+      "model": "seguridad.componentes",
+      "pk": 1,
+      "fields": {
+        "nombre": "Sensor Pirr 1",
+        "sector": "Lateral derecho",
+        "estado": "True"
+      }
+    },
+    {
+        "model": "seguridad.componentes",
+        "pk": 2,
+        "fields": {
+          "nombre": "Sensor Pirr 2",
+          "sector": "Lateral izquierdo",
+          "estado": "True"
+        }
+      },
+      {
+        "model": "seguridad.componentes",
+        "pk": 3,
+        "fields": {
+          "nombre": "Sensor Pirr 3",
+          "sector": "Frontal",
+          "estado": "True"
+        }
+      },
+      {
+        "model": "seguridad.componentes",
+        "pk": 4,
+        "fields": {
+          "nombre": "Cámara",
+          "sector": "Frontal",
+          "estado": "True"
+        }
+      },
+      {
+        "model": "seguridad.componentes",
+        "pk": 5,
+        "fields": {
+          "nombre": "Buzzer",
+          "sector": "Frontal",
+          "estado": "True"
+        }
+      }
+  ]

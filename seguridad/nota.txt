@@ -1,0 +1,15 @@
+Sección 1
+
+Para ejecutar un archivo de restauración de datos es el siguiente comando:
+    python manage.py loaddata "nombre del archivo".json
+
+
+Sección 2
+
+Si ya tiene datos en los modelos entonces:
+
+    1. Eliminar los modelos de una app django.
+        python manage.py migrate "Nombre de su app django" zero
+    2. Migrar los modelos de una app django.
+        python manage.py migrate "Nombre de su app django"
+    3. Ejecutar el comando antes mencionado en la sección 1 para insertar los datos en el modelo

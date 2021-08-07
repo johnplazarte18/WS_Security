@@ -1,3 +1,10 @@
-from django.shortcuts import render
+from typing import FrozenSet
+from django.http import response
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
-# Create your views here.
+class Anomalia(APIView):
+    def get(self, request, format=None):
+        return Response({"mensaje": "holaa get"})
+    def post(self, request, format=None):
+        return Response({"mensaje": "holaa post"})

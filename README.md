@@ -12,3 +12,6 @@ python -m pip install Pillow
 ## 4. Crear las migraciones
 
 ## 5. Efectuar las migraciones
+
+## 6. Instalar el framework de Django Rest Framework
+pip install djangorestframework

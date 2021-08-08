@@ -14,7 +14,7 @@ class Anomalia(APIView):
                 for h in historial.objects.all():    
                     json_evidencias = list()
                     for e in evidencias.objects.filter(unHistorial_id=h.id):
-                        #with open(e.ruta_foto, "rb") as original_file:
+                        #with open('media/'+str(e.ruta_foto), "wb") as original_file:
                         #    encoded_string = base64.b64encode(original_file.read())
                         evidencia = {
                             "evidencia_id": e.id,

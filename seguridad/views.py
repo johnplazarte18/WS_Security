@@ -1,8 +1,10 @@
+from django.core.files.base import ContentFile
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from seguridad.models import historial, componentes, evidencias
 from django.db import transaction
-import json
+from datetime import datetime
+import json, base64
 
 class Anomalia(APIView):
     def get(self, request, format = None):
@@ -12,11 +14,12 @@ class Anomalia(APIView):
                 for h in historial.objects.all():    
                     json_evidencias = list()
                     for e in evidencias.objects.filter(unHistorial_id=h.id):
-                        # aquí obtener la img y codificarla a binario
+                        #with open(e.ruta_foto, "rb") as original_file:
+                        #    encoded_string = base64.b64encode(original_file.read())
                         evidencia = {
                             "evidencia_id": e.id,
                             "hora": str(e.hora),
-                            "foto": "e.ruta_foto"
+                            "foto": "str(encoded_string)"
                         }
                         json_evidencias.append(evidencia)
                     anomalia = {
@@ -28,13 +31,13 @@ class Anomalia(APIView):
                     }
                     json_historial.append(anomalia)
                 return Response({"historial": json_historial})
-            except:
-                return Response({"mensaje": "Sucedió un error al obtener los datos, por favor intente nuevamente"})
+            except Exception as e:
+                return Response({"mensaje": "Sucedió un error al obtener los datos, por favor intente nuevamente " + str(e)})
     def post(self, request, format = None):
         if request.method == 'POST':
             try:
                 with transaction.atomic():
-                    json_data = json.loads(request.body)
+                    json_data = json.loads(request.body.decode('utf-8'))
                     unHistorial = historial()
                     unComponente = componentes()
                     unComponente.id = json_data[0]['historial']['componente_id']
@@ -46,9 +49,19 @@ class Anomalia(APIView):
                         unaEvidencia = evidencias()
                         unaEvidencia.unHistorial = unHistorial
                         unaEvidencia.hora = json_data[0]['evidencias'][e]['hora']
-                        unaEvidencia.ruta_foto = json_data[0]['evidencias'][e]['foto']
+                        image_b64 = json_data[0]['evidencias'][e]['foto']
+                        format, img_body = image_b64.split(";base64,")
+                        extension = format.split("/")[-1]
+                        hora = datetime.strptime(unaEvidencia.hora, '%H:%M:%S').hour
+                        minutos = datetime.strptime(str(unaEvidencia.hora), '%H:%M:%S').minute
+                        segundos = datetime.strptime(str(unaEvidencia.hora), '%H:%M:%S').second
+                        img_file = ContentFile(base64.b64decode(img_body), name = "evidencia_h_" + str(hora) + "_m_" + str(minutos) +"_s_" + str(segundos) + "." + extension)
+                        unaEvidencia.ruta_foto = img_file
                         unaEvidencia.save()
                     return Response({"mensaje": "Transacción efectuada correctamente"})
             except Exception as e:
-                return Response({"mensaje": e})
-                #return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente"})
+                return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
+
+class Componentes(APIView):
+    def get(self, request, format = None):
+        return Response({"componentes": list(componentes.objects.all().values())})

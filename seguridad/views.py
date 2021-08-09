@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from seguridad.models import historial, componentes, evidencias
 from django.db import transaction
-from datetime import datetime
+from datetime import datetime, date
 import json, base64
 
 class Anomalia(APIView):
@@ -22,14 +22,14 @@ class Anomalia(APIView):
                             "foto": str(encoded_string)
                         }
                         json_evidencias.append(evidencia)
-                    anomalia = {
+                    un_historial = {
                         "historial_id" : h.id,
                         "componente_id": h.unComponente.id,
                         "componente_nombre": h.unComponente.nombre,
                         "tipo_historial": h.tipo,
                         "evidencias": json_evidencias
                     }
-                    json_historial.append(anomalia)
+                    json_historial.append(un_historial)
                 return Response({"historial": json_historial})
             except Exception as e:
                 return Response({"mensaje": "Sucedió un error al obtener los datos, por favor intente nuevamente " + str(e)})
@@ -56,7 +56,8 @@ class Anomalia(APIView):
                         hora = datetime.strptime(unaEvidencia.hora, '%H:%M:%S').hour
                         minutos = datetime.strptime(str(unaEvidencia.hora), '%H:%M:%S').minute
                         segundos = datetime.strptime(str(unaEvidencia.hora), '%H:%M:%S').second
-                        img_file = ContentFile(base64.b64decode(img_body), name = "evidencia_h_" + str(hora) + "_m_" + str(minutos) +"_s_" + str(segundos) + "." + extension)
+                        today = date.today()
+                        img_file = ContentFile(base64.b64decode(img_body), name = "evidencia_f_" + str(today) + "-h-" + str(hora) + "-m-" + str(minutos) +"-s-" + str(segundos) + "." + extension)
                         unaEvidencia.ruta_foto = img_file
                         unaEvidencia.save()
                     return Response({"mensaje": "La transacción fue realizada correctamente"})

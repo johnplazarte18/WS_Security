@@ -14,12 +14,12 @@ class Anomalia(APIView):
                 for h in historial.objects.all():    
                     json_evidencias = list()
                     for e in evidencias.objects.filter(unHistorial_id=h.id):
-                        #with open('media/'+str(e.ruta_foto), "wb") as original_file:
-                        #    encoded_string = base64.b64encode(original_file.read())
+                        encoded_string = base64.b64encode(open(str(e.ruta_foto.url)[1:], "rb").read())                        
+                        encoded_string = "data:image/jpeg;base64," + str(encoded_string)[2:][:-1]
                         evidencia = {
                             "evidencia_id": e.id,
                             "hora": str(e.hora),
-                            "foto": "str(encoded_string)"
+                            "foto": str(encoded_string)
                         }
                         json_evidencias.append(evidencia)
                     anomalia = {
@@ -33,6 +33,7 @@ class Anomalia(APIView):
                 return Response({"historial": json_historial})
             except Exception as e:
                 return Response({"mensaje": "Sucedió un error al obtener los datos, por favor intente nuevamente " + str(e)})
+
     def post(self, request, format = None):
         if request.method == 'POST':
             try:
@@ -58,10 +59,26 @@ class Anomalia(APIView):
                         img_file = ContentFile(base64.b64decode(img_body), name = "evidencia_h_" + str(hora) + "_m_" + str(minutos) +"_s_" + str(segundos) + "." + extension)
                         unaEvidencia.ruta_foto = img_file
                         unaEvidencia.save()
-                    return Response({"mensaje": "Transacción efectuada correctamente"})
+                    return Response({"mensaje": "La transacción fue realizada correctamente"})
             except Exception as e:
                 return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
 
 class Componentes(APIView):
     def get(self, request, format = None):
-        return Response({"componentes": list(componentes.objects.all().values())})
+        if request.method == 'GET':
+            try:
+                return Response({"componentes": list(componentes.objects.all().values())})
+            except Exception as e:
+                return Response({"mensaje": "Sucedió un error al obtener los datos, por favor intente nuevamente."})
+    
+    def post(self, request, format = None):
+        if request.method == 'POST':
+            try:
+                with transaction.atomic():
+                    json_data = json.loads(request.body.decode('utf-8'))
+                    unComponente = componentes.objects.get(id=int(json_data[0]['componente']['componente_id']))
+                    unComponente.estado = json_data[0]['componente']['estado']
+                    unComponente.save()
+                    return Response({"mensaje": "La transacción fue realizada correctamente"})    
+            except Exception as e: 
+                return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})

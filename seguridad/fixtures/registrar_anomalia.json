@@ -1,9 +1,9 @@
 [
     {
         "historial":{
-        "componente_id": 1,
-        "fecha": "2021-08-05",
-        "tipo": "Anomalía"
+            "componente_id": 1,
+            "fecha": "2021-08-05",
+            "tipo": "Anomalía"
         },
         "evidencias":
         [   {

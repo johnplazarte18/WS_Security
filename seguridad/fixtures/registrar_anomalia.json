@@ -1,27 +1,13 @@
-[
-    {
-        "historial":{
-            "componente_id": 1,
-            "fecha": "2021-08-05",
-            "tipo": "Anomalía"
-        },
+{
+    "historial":{
+        "componente_id": 1,
+        "fecha": "2021-08-05",
+        "tipo_historial": "Anomalía",
         "evidencias":
-        [   {
-                "hora": "18:15:13",
-                "foto": "foto_en_binario"
-            },
-            {
-                "hora": "18:15:15",
-                "foto": "foto_en_binario"
-            },
-            {
-                "hora": "18:15:17",
-                "foto": "foto_en_binario"
-            },
-            {
-                "hora": "18:15:19",
-                "foto": "foto_en_binario"
-            } 
-        ]
+                    [   {
+                            "hora": "18:15:13",
+                            "foto": "foto_en_binario"
+                        }
+                    ]
     }
-]
+}

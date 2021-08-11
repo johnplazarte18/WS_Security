@@ -1,8 +1,4 @@
-[
-    {
-        "componente":{
-            "componente_id": 1,
-            "estado": true
-        }
-    }
-]
+{
+    "componente_id": 1,
+    "estado": true
+}

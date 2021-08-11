@@ -79,13 +79,11 @@ class Usuario(APIView):
 
 class autenticacion(APIView):
 
-    def get(self, request, format = None):
-        if request.method == 'GET':
+    def post(self, request, format = None):
+        if request.method == 'POST':
             try:
-                if('usuario' in request.GET and 'clave' in request.GET):
-
-                    return Response({"usuario": list(usuarios.objects.filter(usuario = request.GET['usuario'], clave = request.GET['clave']).values())})
-                return Response({"mensaje": "No existen los datos necesarios para la autenticación."})                
+                json_data = json.loads(request.body.decode('utf-8'))
+                return Response({"usuario": ""})
             except Exception as e:  
                 return Response({"mensaje": "Sucedió un error al obtener los datos, por favor intente nuevamente."})
     

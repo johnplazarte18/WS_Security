@@ -9,9 +9,9 @@ import json, base64
 class Anomalia(APIView):
 
     # GET con parámetros 
-    # http://127.0.0.1:8000/api-seguridad/historial/?fecha_desde=2019-08-05&fecha_hasta=2021-08-05
+    # http://127.0.0.1:8000/api-seguridad/historial-anomalias/?fecha_desde=2019-08-05&fecha_hasta=2021-08-05
     # GET sin parámetros
-    # http://127.0.0.1:8000/api-seguridad/historial/
+    # http://127.0.0.1:8000/api-seguridad/historial-anomalias/
     def get(self, request, format = None):
         if request.method == 'GET':
             try:
@@ -59,6 +59,7 @@ class Anomalia(APIView):
         except Exception as e:
             return None
 
+    # http://127.0.0.1:8000/api-seguridad/historial-anomalias/
     def post(self, request, format = None):
         if request.method == 'POST':
             try:
@@ -66,16 +67,16 @@ class Anomalia(APIView):
                     json_data = json.loads(request.body.decode('utf-8'))
                     unHistorial = historial()
                     unComponente = componentes()
-                    unComponente.id = json_data['historial']['componente_id']
+                    unComponente.id = json_data['componente_id']
                     unHistorial.unComponente = unComponente
-                    unHistorial.fecha = json_data['historial']['fecha']
-                    unHistorial.tipo = json_data['historial']['tipo_historial']
+                    unHistorial.fecha = json_data['fecha']
+                    unHistorial.tipo = json_data['tipo_historial']
                     unHistorial.save()
-                    for e in range(len(json_data['historial']['evidencias'])):
+                    for e in range(len(json_data['evidencias'])):
                         unaEvidencia = evidencias()
                         unaEvidencia.unHistorial = unHistorial
-                        unaEvidencia.hora = json_data['historial']['evidencias'][e]['hora']
-                        image_b64 = json_data['historial']['evidencias'][e]['foto']
+                        unaEvidencia.hora = json_data['evidencias'][e]['hora']
+                        image_b64 = json_data['evidencias'][e]['foto']
                         format, img_body = image_b64.split(";base64,")
                         extension = format.split("/")[-1]
                         hora = datetime.strptime(unaEvidencia.hora, '%H:%M:%S').hour
@@ -84,7 +85,7 @@ class Anomalia(APIView):
                         img_file = ContentFile(base64.b64decode(img_body), name = "evidencia_f_" + str(unHistorial.fecha) + "-h-" + str(hora) + "-m-" + str(minutos) +"-s-" + str(segundos) + "." + extension)
                         unaEvidencia.ruta_foto = img_file
                         unaEvidencia.save()
-                    return Response({"mensaje": "La transacción fue realizada correctamente"})
+                    return Response({"historial_id": unHistorial.id})
             except Exception as e:
                 return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
 
@@ -108,6 +109,7 @@ class Componentes(APIView):
             except Exception as e:  
                 return Response({"mensaje": "Sucedió un error al obtener los datos, por favor intente nuevamente."})
     
+    # http://127.0.0.1:8000/api-seguridad/componentes/
     def post(self, request, format = None):
         if request.method == 'POST':
             try:

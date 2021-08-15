@@ -7,6 +7,12 @@ import json, base64, os
 
 class Usuario(APIView):
 
+    # GET con parámetro id
+    # http://127.0.0.1:8000/api-usuario/usuario/?id=5
+    # GET con parámetro nombre
+    # http://127.0.0.1:8000/api-usuario/usuario/?usuario=carlos
+    # GET sin parámetros
+    # http://127.0.0.1:8000/api-usuario/usuario/
     def get(self, request, format = None):
         if request.method == 'GET':
             try:
@@ -19,6 +25,7 @@ class Usuario(APIView):
             except Exception as e:  
                 return Response({"mensaje": "Sucedió un error al obtener los datos, por favor intente nuevamente."})
     
+    # http://127.0.0.1:8000/api-usuario/usuario/
     def post(self, request, format = None):
         if request.method == 'POST':
             try:
@@ -27,6 +34,7 @@ class Usuario(APIView):
                     # Cambia el estado del usuario
                     if('usuario_id' in json_data and 'estado' in json_data):
                         unUsuario = usuarios.objects.get(id = json_data['usuario_id'])
+                        unUsuario = self.buildUsuario(unUsuario, json_data)
                         if(unUsuario != None):
                             unUsuario.save()
                         else:
@@ -36,7 +44,10 @@ class Usuario(APIView):
                         unUsuario = usuarios.objects.get(id = json_data['usuario_id'])
                         unUsuario = self.buildUsuario(unUsuario, json_data)
                         if(unUsuario != None):
-                            unUsuario.save()
+                            if(unUsuario  != "repetido"):
+                                unUsuario.save()
+                            else:
+                                return Response({"mensaje": "Usuario repetido."})  
                         else:
                             raise Exception
                     else:
@@ -44,10 +55,14 @@ class Usuario(APIView):
                         unUsuario = usuarios()
                         unUsuario = self.buildUsuario(unUsuario, json_data)
                         if(unUsuario != None):
-                            unUsuario.save()
+                            if(unUsuario  != "repetido"):
+                                unUsuario.save()
+                                return Response({"usuario_id": unUsuario.id}) 
+                            else:
+                                return Response({"mensaje": "Usuario repetido."})   
                         else:
                             raise Exception
-                return Response({"mensaje": "La transacción fue realizada correctamente"})  
+                return Response({"mensaje": "La transacción fue realizada correctamente."})  
             except Exception as e: 
                 return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
 
@@ -58,7 +73,11 @@ class Usuario(APIView):
             if('rol' in json_data):
                 unUsuario.rol = json_data['rol']
             if('usuario' in json_data):
-                unUsuario.usuario = json_data['usuario']
+                contador_user = len(usuarios.objects.filter(usuario__icontains = json_data['usuario']))
+                if((contador_user == 0) or (contador_user == 1 and 'usuario_id' in json_data)):
+                    unUsuario.usuario = json_data['usuario']
+                else:
+                    return "repetido"
             if('clave' in json_data):
                 unUsuario.clave = json_data['clave']
             if ('estado' in json_data):
@@ -66,18 +85,21 @@ class Usuario(APIView):
             else:
                 unUsuario.estado = True
             if('foto' in json_data):
-                imgBorrar = unUsuario.ruta_foto.url
+                ruta_img_borrar = ""
+                if(str(unUsuario.ruta_foto) != ""):
+                    ruta_img_borrar = unUsuario.ruta_foto.url[1:]
                 image_b64 = json_data['foto']
                 format, img_body = image_b64.split(";base64,")
                 extension = format.split("/")[-1]
                 img_file = ContentFile(base64.b64decode(img_body), name = "usuario_" + unUsuario.usuario + "." + extension)
                 unUsuario.ruta_foto = img_file
-                os.remove(imgBorrar)
+                if(ruta_img_borrar != ""):
+                    os.remove(ruta_img_borrar)
             return unUsuario
         except Exception as e: 
             return None
 
-class autenticacion(APIView):
+class Autenticacion(APIView):
 
     def post(self, request, format = None):
         if request.method == 'POST':

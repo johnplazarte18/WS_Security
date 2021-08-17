@@ -20,14 +20,14 @@ class Anomalia(APIView):
                     fecha_desde = request.GET['fecha_desde']
                     fecha_hasta = request.GET['fecha_hasta']
                     for h in historial.objects.filter(fecha__range = [fecha_desde, fecha_hasta]):  
-                        object_json = self.crearObjectJson(h)
+                        object_json = self.jsonHistorial(h)
                         if(object_json != None):
                             json_historial.append(object_json)
                         else:
                             raise Exception
                 else:
                     for h in historial.objects.all():    
-                        object_json = self.crearObjectJson(h)
+                        object_json = self.jsonHistorial(h)
                         if(object_json != None):
                             json_historial.append(object_json)
                         else:
@@ -36,7 +36,7 @@ class Anomalia(APIView):
             except Exception as e:
                 return Response({"mensaje": "Sucedió un error al obtener los datos, por favor intente nuevamente."})
 
-    def crearObjectJson(self, historial):
+    def jsonHistorial(self, historial):
         try:
             json_evidencias = list()
             for e in evidencias.objects.filter(unHistorial_id = historial.id):
@@ -101,15 +101,33 @@ class Componentes(APIView):
     def get(self, request, format = None):
         if request.method == 'GET':
             try:
+                json_componente = list()
                 if('id' in request.GET):
-                    return Response({"componentes": list(componentes.objects.filter(id = request.GET['id']).values())})
+                    unComponente = componentes.objects.get(id = request.GET['id'])
+                    json_componente.append(self.buildJsonCompo(unComponente))
+                    return Response({"componente": json_componente})
                 elif('nombre' in request.GET):
-                    return Response({"componentes": list(componentes.objects.filter(nombre = request.GET['nombre']).values())})
+                    unComponente = componentes.objects.get(nombre = request.GET['nombre'])
+                    json_componente.append(self.buildJsonCompo(unComponente))
+                    return Response({"componente": json_componente})
                 else:
-                    return Response({"componentes": list(componentes.objects.all().values())})
+                    for c in componentes.objects.all():
+                        json_componente.append(self.buildJsonCompo(c))
+                    return Response({"componente": json_componente})
+            except componentes.DoesNotExist:
+                return Response({"mensaje": "No existe el componente."}) 
             except Exception as e:  
-                return Response({"mensaje": "Sucedió un error al obtener los datos, por favor intente nuevamente."})
+                return Response({"mensaje": "Sucedió un error al obtener los datos, por favor intente nuevamente." + str(e)})
     
+    def buildJsonCompo(self, componente):
+        un_componente = {
+            "componente_id": componente.id,
+            "componente": componente.nombre,
+            "sector": componente.sector,
+            "estado": componente.estado
+        }
+        return un_componente
+
     # http://127.0.0.1:8000/api-seguridad/componentes/
     def put(self, request, format = None):
         if request.method == 'PUT':
@@ -119,7 +137,9 @@ class Componentes(APIView):
                     unComponente = componentes.objects.get(id = json_data['componente_id'])
                     unComponente.estado = json_data['estado']
                     unComponente.save()
-                    return Response({"mensaje": "La transacción fue realizada correctamente"})    
+                    return Response({"mensaje": "La transacción fue realizada correctamente."})    
+            except componentes.DoesNotExist:
+                return Response({"mensaje": "No existe el componente."})    
             except Exception as e: 
                 return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
     

@@ -18,11 +18,13 @@ pip install djangorestframework
 
 ### 7. Insertar datos a partir de fixtures .json
 
+### 8. Instalar el paquete "corsheaders" para el intercambio de recursos y se pueda consumir el web services desde otra aplicación
+python -m pip install django-cors-headers
+
 #### Sección 1
 
 Para ejecutar un archivo de restauración de datos es el siguiente comando:
-    python manage.py loaddata "nombre del archivo".json
-
+    python manage.py loaddata "nombre del archivo json ubicado dentro de la aplicación django app/fixtures/file.json"
 
 #### Sección 2
 

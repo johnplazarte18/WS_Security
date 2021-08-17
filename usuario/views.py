@@ -16,44 +16,46 @@ class Usuario(APIView):
     def get(self, request, format = None):
         if request.method == 'GET':
             try:
-                josn_usuario = list()
+                json_usuario = list()
                 if('id' in request.GET):
-                    unUsuario = usuarios.objects.filter(id = request.GET['id'])
-                    object_json = self.crearObjectJson(unUsuario[0])
+                    unUsuario = usuarios.objects.get(id = request.GET['id'])
+                    object_json = self.buildJsonUsuario(unUsuario)
                     if(object_json != None):
-                        josn_usuario.append(object_json)
-                        return Response({"usuario": josn_usuario})
+                        json_usuario.append(object_json)
+                        return Response({"usuario": json_usuario})
                     else:
                         raise Exception
                 elif('usuario' in request.GET):
-                    unUsuario = usuarios.objects.filter(usuario = request.GET['usuario'])
-                    object_json = self.crearObjectJson(unUsuario[0])
+                    unUsuario = usuarios.objects.get(usuario = request.GET['usuario'])
+                    object_json = self.buildJsonUsuario(unUsuario)
                     if(object_json != None):
-                        josn_usuario.append(object_json)
-                        return Response({"usuario": josn_usuario})
+                        json_usuario.append(object_json)
+                        return Response({"usuario": json_usuario})
                     else:
                         raise Exception
                 else:
                     for u in usuarios.objects.all():
-                        object_json = self.crearObjectJson(u)
+                        object_json = self.buildJsonUsuario(u)
                         if(object_json != None):
-                            josn_usuario.append(object_json)
+                            json_usuario.append(object_json)
                         else:
                             raise Exception
-                    return Response({"usuario": josn_usuario})
+                    return Response({"usuario": json_usuario})
+            except usuarios.DoesNotExist:
+                return Response({"usuario": "No existe el usuario."})
             except Exception as e:  
-                return Response({"mensaje": "Sucedió un error al obtener los datos, por favor intente nuevamente."})
+                return Response({"usuario": "Sucedió un error al obtener los datos, por favor intente nuevamente."})
     
-    def crearObjectJson(self, usuarios):
+    def buildJsonUsuario(self, usuario):
         try:
-            encoded_string = "data:image/PNG;base64," + str(base64.b64encode(open(str(usuarios.ruta_foto.url)[1:], "rb").read()))[2:][:-1]
+            encoded_string = "data:image/PNG;base64," + str(base64.b64encode(open(str(usuario.ruta_foto.url)[1:], "rb").read()))[2:][:-1]
             un_usuario = {
-                "usuario_id": usuarios.id,
-                "nombre": usuarios.nombre,
-                "rol": usuarios.rol,
-                "usuario": usuarios.usuario,
-                "clave": usuarios.clave,
-                "estado": usuarios.estado,
+                "usuario_id": usuario.id,
+                "nombre": usuario.nombre,
+                "rol": usuario.rol,
+                "usuario": usuario.usuario,
+                "clave": usuario.clave,
+                "estado": usuario.estado,
                 "foto": encoded_string
             }
             return un_usuario
@@ -83,8 +85,8 @@ class Usuario(APIView):
             except Exception as e: 
                 return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
 
-# Modificar un usuario
-# http://127.0.0.1:8000/api-usuario/usuario/
+    # Modificar un usuario
+    # http://127.0.0.1:8000/api-usuario/usuario/
     def put(self, request, format = None):
         if request.method == 'PUT':
             try:
@@ -103,6 +105,8 @@ class Usuario(APIView):
                             raise Exception
                     else:
                         return Response({"mensaje": "Ups... al parecer no envió el json correcto para el método PUT, se requiere de un id."})  
+            except usuarios.DoesNotExist:
+                return Response({"usuario": "No existe el usuario."})
             except Exception as e: 
                 return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
 
@@ -146,14 +150,29 @@ class Usuario(APIView):
         except Exception as e: 
             return None
 
-class Autenticacion(APIView):
+class Login(APIView):
 
+    # Iniciar sesión
+    # http://127.0.0.1:8000/api-usuario/login/
     def post(self, request, format = None):
         if request.method == 'POST':
             try:
+                josn_usuario = list()
                 json_data = json.loads(request.body.decode('utf-8'))
-                return Response({"usuario": ""})
+                unUsuario = usuarios.objects.get(usuario = json_data['usuario'])
+                if(unUsuario.clave == json_data['clave']):
+                    apiViewUsuario = Usuario()
+                    object_json = apiViewUsuario.buildJsonUsuario(unUsuario)
+                    if(object_json != None):
+                        josn_usuario.append(object_json)
+                        return Response({"usuario": josn_usuario})
+                    else:
+                        raise Exception
+                else:
+                    return Response({"mensaje": "La clave es incorrecta."})
+            except usuarios.DoesNotExist:
+                return Response({"usuario": "No existe el usuario."})
             except Exception as e:  
-                return Response({"mensaje": "Sucedió un error al obtener los datos, por favor intente nuevamente."})
+                return Response({"mensaje": "Sucedió un error al verificar el usuario, por favor intente nuevamente."})
     
     

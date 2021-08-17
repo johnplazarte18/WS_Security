@@ -25,33 +25,14 @@ class Usuario(APIView):
             except Exception as e:  
                 return Response({"mensaje": "Sucedió un error al obtener los datos, por favor intente nuevamente."})
     
+    # Registrar un usuario
     # http://127.0.0.1:8000/api-usuario/usuario/
     def post(self, request, format = None):
         if request.method == 'POST':
             try:
                 with transaction.atomic():
                     json_data = json.loads(request.body.decode('utf-8'))
-                    # Cambia el estado del usuario
-                    if('usuario_id' in json_data and 'estado' in json_data):
-                        unUsuario = usuarios.objects.get(id = json_data['usuario_id'])
-                        unUsuario = self.buildUsuario(unUsuario, json_data)
-                        if(unUsuario != None):
-                            unUsuario.save()
-                        else:
-                            raise Exception
-                    # Modificar un usuario  
-                    elif('usuario_id' in json_data):
-                        unUsuario = usuarios.objects.get(id = json_data['usuario_id'])
-                        unUsuario = self.buildUsuario(unUsuario, json_data)
-                        if(unUsuario != None):
-                            if(unUsuario  != "repetido"):
-                                unUsuario.save()
-                            else:
-                                return Response({"mensaje": "Usuario repetido."})  
-                        else:
-                            raise Exception
-                    else:
-                        # Registrar un usuario
+                    if('usuario_id' not in json_data):
                         unUsuario = usuarios()
                         unUsuario = self.buildUsuario(unUsuario, json_data)
                         if(unUsuario != None):
@@ -62,7 +43,31 @@ class Usuario(APIView):
                                 return Response({"mensaje": "Usuario repetido."})   
                         else:
                             raise Exception
-                return Response({"mensaje": "La transacción fue realizada correctamente."})  
+                    else:
+                        return Response({"mensaje": "Ups... al parecer no envió el json correcto para el método POST, no se requiere de un id."})  
+            except Exception as e: 
+                return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
+
+# Modificar un usuario
+# http://127.0.0.1:8000/api-usuario/usuario/
+    def put(self, request, format = None):
+        if request.method == 'PUT':
+            try:
+                with transaction.atomic():
+                    json_data = json.loads(request.body.decode('utf-8'))
+                    if('usuario_id' in json_data):
+                        unUsuario = usuarios.objects.get(id = json_data['usuario_id'])
+                        unUsuario = self.buildUsuario(unUsuario, json_data)
+                        if(unUsuario != None):
+                            if(unUsuario  != "repetido"):
+                                unUsuario.save()
+                                return Response({"mensaje": "La transacción fue realizada correctamente."})  
+                            else:
+                                return Response({"mensaje": "Usuario repetido."})  
+                        else:
+                            raise Exception
+                    else:
+                        return Response({"mensaje": "Ups... al parecer no envió el json correcto para el método PUT, se requiere de un id."})  
             except Exception as e: 
                 return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
 
@@ -73,11 +78,18 @@ class Usuario(APIView):
             if('rol' in json_data):
                 unUsuario.rol = json_data['rol']
             if('usuario' in json_data):
-                contador_user = len(usuarios.objects.filter(usuario__icontains = json_data['usuario']))
-                if((contador_user == 0) or (contador_user == 1 and 'usuario_id' in json_data)):
+                try:
+                    newUsuario = usuarios.objects.get(usuario__icontains = json_data['usuario'])
+                    if(newUsuario):
+                        if('usuario_id' in json_data):
+                            if(str(newUsuario.id) == str(json_data['usuario_id'])):
+                                unUsuario.usuario = json_data['usuario']
+                            else:
+                                return "repetido"
+                        else:
+                            return "repetido"
+                except usuarios.DoesNotExist:
                     unUsuario.usuario = json_data['usuario']
-                else:
-                    return "repetido"
             if('clave' in json_data):
                 unUsuario.clave = json_data['clave']
             if ('estado' in json_data):

@@ -111,8 +111,8 @@ class Componentes(APIView):
                 return Response({"mensaje": "Sucedió un error al obtener los datos, por favor intente nuevamente."})
     
     # http://127.0.0.1:8000/api-seguridad/componentes/
-    def post(self, request, format = None):
-        if request.method == 'POST':
+    def put(self, request, format = None):
+        if request.method == 'PUT':
             try:
                 with transaction.atomic():
                     json_data = json.loads(request.body.decode('utf-8'))
@@ -122,3 +122,4 @@ class Componentes(APIView):
                     return Response({"mensaje": "La transacción fue realizada correctamente"})    
             except Exception as e: 
                 return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
+    

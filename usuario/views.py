@@ -16,15 +16,50 @@ class Usuario(APIView):
     def get(self, request, format = None):
         if request.method == 'GET':
             try:
+                josn_usuario = list()
                 if('id' in request.GET):
-                    return Response({"usuario": list(usuarios.objects.filter(id = request.GET['id']).values())})
+                    unUsuario = usuarios.objects.filter(id = request.GET['id'])
+                    object_json = self.crearObjectJson(unUsuario[0])
+                    if(object_json != None):
+                        josn_usuario.append(object_json)
+                        return Response({"usuario": josn_usuario})
+                    else:
+                        raise Exception
                 elif('usuario' in request.GET):
-                    return Response({"usuario": list(usuarios.objects.filter(usuario = request.GET['usuario']).values())})
+                    unUsuario = usuarios.objects.filter(usuario = request.GET['usuario'])
+                    object_json = self.crearObjectJson(unUsuario[0])
+                    if(object_json != None):
+                        josn_usuario.append(object_json)
+                        return Response({"usuario": josn_usuario})
+                    else:
+                        raise Exception
                 else:
-                    return Response({"usuario": list(usuarios.objects.all().values())})
+                    for u in usuarios.objects.all():
+                        object_json = self.crearObjectJson(u)
+                        if(object_json != None):
+                            josn_usuario.append(object_json)
+                        else:
+                            raise Exception
+                    return Response({"usuario": josn_usuario})
             except Exception as e:  
                 return Response({"mensaje": "Sucedió un error al obtener los datos, por favor intente nuevamente."})
     
+    def crearObjectJson(self, usuarios):
+        try:
+            encoded_string = "data:image/PNG;base64," + str(base64.b64encode(open(str(usuarios.ruta_foto.url)[1:], "rb").read()))[2:][:-1]
+            un_usuario = {
+                "usuario_id": usuarios.id,
+                "nombre": usuarios.nombre,
+                "rol": usuarios.rol,
+                "usuario": usuarios.usuario,
+                "clave": usuarios.clave,
+                "estado": usuarios.estado,
+                "foto": encoded_string
+            }
+            return un_usuario
+        except Exception as e:
+            return None
+
     # Registrar un usuario
     # http://127.0.0.1:8000/api-usuario/usuario/
     def post(self, request, format = None):

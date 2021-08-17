@@ -51,6 +51,7 @@ class Anomalia(APIView):
                 "historial_id" : historial.id,
                 "componente_id": historial.unComponente.id,
                 "componente_nombre": historial.unComponente.nombre,
+                "sector": historial.unComponente.sector,
                 "fecha": str(historial.fecha),
                 "tipo_historial": historial.tipo,
                 "evidencias": json_evidencias

@@ -143,3 +143,34 @@ class Componentes(APIView):
             except Exception as e: 
                 return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
     
+class Sistema(APIView):
+
+    # http://127.0.0.1:8000/api-seguridad/sistema/
+    def get(self, request, format = None):
+        if request.method == 'GET':
+            try:
+                with transaction.atomic():
+                    estado_sistema = ''
+                    all_components = len(componentes.objects.all())
+                    components_habili = len(componentes.objects.filter(estado = True)) 
+                    if(all_components == components_habili):
+                        estado_sistema = 'Habilitado'
+                    else:
+                        estado_sistema = 'Dehsabilitado'
+                    return Response({"sistema": estado_sistema})    
+            except Exception as e: 
+                return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
+    
+    # http://127.0.0.1:8000/api-seguridad/sistema/
+    def put(self, request, format = None):
+        if request.method == 'PUT':
+            try:
+                with transaction.atomic():
+                    json_data = json.loads(request.body.decode('utf-8'))
+                    for c in componentes.objects.all():
+                        c.estado = json_data['estado']
+                        c.save()
+                    return Response({"mensaje": "La transacción fue realizada correctamente."})    
+            except Exception as e: 
+                return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
+    

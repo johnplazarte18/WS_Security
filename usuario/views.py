@@ -42,13 +42,13 @@ class Usuario(APIView):
                             raise Exception
                     return Response({"usuario": json_usuario})
             except usuarios.DoesNotExist:
-                return Response({"usuario": "No existe el usuario."})
+                return Response({"mensaje": "No existe el usuario."})
             except Exception as e:  
-                return Response({"usuario": "Sucedió un error al obtener los datos, por favor intente nuevamente."})
+                return Response({"mensaje": "Sucedió un error al obtener los datos, por favor intente nuevamente."})
     
     def buildJsonUsuario(self, usuario):
         try:
-            encoded_string = "data:image/PNG;base64," + str(base64.b64encode(open(str(usuario.ruta_foto.url)[1:], "rb").read()))[2:][:-1]
+            #encoded_string = "data:image/PNG;base64," + str(base64.b64encode(open(str(usuario.ruta_foto.url)[1:], "rb").read()))[2:][:-1]
             un_usuario = {
                 "usuario_id": usuario.id,
                 "nombre": usuario.nombre,
@@ -56,7 +56,7 @@ class Usuario(APIView):
                 "usuario": usuario.usuario,
                 "clave": usuario.clave,
                 "estado": usuario.estado,
-                "foto": encoded_string
+                "foto": 'encoded_string'
             }
             return un_usuario
         except Exception as e:
@@ -106,7 +106,7 @@ class Usuario(APIView):
                     else:
                         return Response({"mensaje": "Ups... al parecer no envió el json correcto para el método PUT, se requiere de un id."})  
             except usuarios.DoesNotExist:
-                return Response({"usuario": "No existe el usuario."})
+                return Response({"mensaje": "No existe el usuario."})
             except Exception as e: 
                 return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
 
@@ -174,7 +174,7 @@ class Login(APIView):
                 else:
                     return Response({"mensaje": "El usuario se encuentra deshabilitado."})
             except usuarios.DoesNotExist:
-                return Response({"usuario": "No existe el usuario."})
+                return Response({"mensaje": "No existe el usuario."})
             except Exception as e:  
                 return Response({"mensaje": "Sucedió un error al verificar el usuario, por favor intente nuevamente."})
     

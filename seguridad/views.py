@@ -40,11 +40,11 @@ class Anomalia(APIView):
         try:
             json_evidencias = list()
             for e in evidencias.objects.filter(unHistorial_id = historial.id):
-                encoded_string = "data:image/PNG;base64," + str(base64.b64encode(open(str(e.ruta_foto.url)[1:], "rb").read()))[2:][:-1]
+                #encoded_string = "data:image/PNG;base64," + str(base64.b64encode(open(str(e.ruta_foto.url)[1:], "rb").read()))[2:][:-1]
                 evidencia = {
                     "evidencia_id": e.id,
                     "hora": str(e.hora),
-                    "foto": encoded_string
+                    "foto": 'encoded_string'
                 }
                 json_evidencias.append(evidencia)
             un_historial = {

@@ -137,11 +137,11 @@ class Componentes(APIView):
                     unComponente = componentes.objects.get(id = json_data['componente_id'])
                     unComponente.estado = json_data['estado']
                     unComponente.save()
-                    return Response({"mensaje": "La transacción fue realizada correctamente."})    
+                    return Response({"mensaje": "True"})    
             except componentes.DoesNotExist:
-                return Response({"mensaje": "No existe el componente."})    
+                return Response({"mensaje": "False"})    
             except Exception as e: 
-                return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
+                return Response({"mensaje": "False"})
     
 class Sistema(APIView):
 
@@ -152,11 +152,11 @@ class Sistema(APIView):
                 with transaction.atomic():
                     estado_sistema = ''
                     all_components = len(componentes.objects.all())
-                    components_habili = len(componentes.objects.filter(estado = True)) 
+                    components_habili = len(componentes.objects.filter(estado = False)) 
                     if(all_components == components_habili):
-                        estado_sistema = 'Habilitado'
+                        estado_sistema = 'Deshabilitado'
                     else:
-                        estado_sistema = 'Dehsabilitado'
+                        estado_sistema = 'Habilitado'
                     return Response({"sistema": estado_sistema})    
             except Exception as e: 
                 return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
@@ -170,7 +170,7 @@ class Sistema(APIView):
                     for c in componentes.objects.all():
                         c.estado = json_data['estado']
                         c.save()
-                    return Response({"mensaje": "La transacción fue realizada correctamente."})    
+                    return Response({"mensaje": "True"})    
             except Exception as e: 
-                return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
+                return Response({"mensaje": "False"})
     

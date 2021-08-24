@@ -20,5 +20,5 @@ class evidencias(models.Model):
 
 class solicitud(models.Model):
     unUsuario = models.ForeignKey(usuarios, on_delete=models.PROTECT)
-    historial_id = models.IntegerField(max_length=7, null=True, blank=True)
+    historial_id = models.IntegerField(null=True, blank=True)
     estado = models.BooleanField()

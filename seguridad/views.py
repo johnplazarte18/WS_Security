@@ -1,7 +1,8 @@
 from django.core.files.base import ContentFile
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from seguridad.models import historial, componentes, evidencias
+from seguridad.models import historial, componentes, evidencias, solicitud
+from usuario.models import usuarios
 from django.db import transaction
 from datetime import datetime
 import json, base64
@@ -174,3 +175,79 @@ class Sistema(APIView):
             except Exception as e: 
                 return Response({"mensaje": "False"})
     
+class Solicitud(APIView):
+    
+    # GET 1 (este es para la app móvil)
+    # http://127.0.0.1:8000/api-seguridad/solicitud/?solicitud_id=4
+    # GET 2 (este es para el arduino)
+    # # http://127.0.0.1:8000/api-seguridad/solicitud/?estado=False
+    def get(self, request, format = None):
+        if request.method == 'GET':
+            try:
+                with transaction.atomic():
+                    json_solicitud = list()
+                    if('solicitud_id' in request.GET):
+                        solicitudes = solicitud.objects.get(id = request.GET['solicitud_id'])
+                        json_solicitud.append(self.buildJsonSolici(solicitudes))
+                        return Response({"solicitudes": json_solicitud})    
+                    elif('estado' in request.GET):
+                        solicitudes = solicitud.objects.filter(estado = request.GET['estado'])
+                        for s in solicitudes:
+                            json_solicitud.append(self.buildJsonSolici(s))
+                        return Response({"solicitudes": json_solicitud})   
+                    else:
+                        solicitudes = solicitud.objects.all()
+                        for s in solicitudes:
+                            json_solicitud.append(self.buildJsonSolici(s))
+                        return Response({"solicitudes": json_solicitud})  
+            except solicitud.DoesNotExist:
+                return Response({"mensaje": "No existen solicitudes."})
+            except Exception as e: 
+                return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
+    
+    def buildJsonSolici(self, solicitud):
+        una_solicitud = {
+            "solicitud_id": solicitud.id,
+            "usuario_id": solicitud.unUsuario.id,
+            "historial_id": solicitud.historial_id,
+            "estado": solicitud.estado
+        }
+        return una_solicitud
+
+    # http://127.0.0.1:8000/api-seguridad/solicitud/
+    def post(self, request, format = None):
+        if request.method == 'POST':
+            try:
+                with transaction.atomic():
+                    json_data = json.loads(request.body.decode('utf-8'))
+                    if('usuario_id' in json_data):
+                        unaSolicitud = solicitud()
+                        unUsuario = usuarios()
+                        unUsuario.id = json_data['usuario_id']
+                        unaSolicitud.unUsuario = unUsuario
+                        unaSolicitud.estado = False
+                        unaSolicitud.save()
+                        return Response({"solicitud_id": unaSolicitud.id})    
+                    else:
+                        return Response({"mensaje": "False"})    
+            except Exception as e: 
+                return Response({"mensaje": "False"})
+
+    # http://127.0.0.1:8000/api-seguridad/solicitud/
+    def put(self, request, format = None):
+        if request.method == 'PUT':
+            try:
+                with transaction.atomic():
+                    json_data = json.loads(request.body.decode('utf-8'))
+                    if('solicitud_id' in json_data and 'historial_id' in json_data):
+                        unaSolicitud = solicitud.objects.get(id = json_data['solicitud_id'])
+                        unaSolicitud.estado = True
+                        unaSolicitud.historial_id = json_data['historial_id']
+                        unaSolicitud.save() 
+                        return Response({"mensaje": "True"})    
+                    else:
+                        return Response({"mensaje": "False"})        
+            except solicitud.DoesNotExist:
+                return Response({"mensaje": "False"})
+            except Exception as e: 
+                return Response({"mensaje": "False"})

@@ -77,12 +77,17 @@ class Anomalia(APIView):
                 with transaction.atomic():
                     json_data = json.loads(request.body.decode('utf-8'))
                     unHistorial = historial()
-                    unComponente = componentes()
-                    unComponente.id = json_data['componente_id']
+                    unComponente = componentes.objects.get(id = json_data['componente_id'])
                     unHistorial.unComponente = unComponente
                     unHistorial.fecha = json_data['fecha']
                     unHistorial.tipo = json_data['tipo_historial']
                     unHistorial.save()
+                    if(json_data['tipo_historial'] == 'Solicitado'):
+                        if('solicitud_id' in json_data):
+                            unaSolicitud = solicitud.objects.get(id = json_data['solicitud_id'])
+                            unaSolicitud.estado = True
+                            unaSolicitud.historial_id = unHistorial.id
+                            unaSolicitud.save() 
                     for e in range(len(json_data['evidencias'])):
                         unaEvidencia = evidencias()
                         unaEvidencia.unHistorial = unHistorial
@@ -97,6 +102,10 @@ class Anomalia(APIView):
                         unaEvidencia.ruta_foto = img_file
                         unaEvidencia.save()
                     return Response({"historial_id": unHistorial.id})
+            except componentes.DoesNotExist:
+                return Response({"mensaje": "No existe el componente."})
+            except solicitud.DoesNotExist:
+                return Response({"mensaje": "No existe la solicitud."})
             except Exception as e:
                 return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
 
@@ -239,24 +248,5 @@ class Solicitud(APIView):
                         return Response({"solicitud_id": unaSolicitud.id})    
                     else:
                         return Response({"mensaje": "False"})    
-            except Exception as e: 
-                return Response({"mensaje": "False"})
-
-    # http://127.0.0.1:8000/api-seguridad/solicitud/
-    def put(self, request, format = None):
-        if request.method == 'PUT':
-            try:
-                with transaction.atomic():
-                    json_data = json.loads(request.body.decode('utf-8'))
-                    if('solicitud_id' in json_data and 'historial_id' in json_data):
-                        unaSolicitud = solicitud.objects.get(id = json_data['solicitud_id'])
-                        unaSolicitud.estado = True
-                        unaSolicitud.historial_id = json_data['historial_id']
-                        unaSolicitud.save() 
-                        return Response({"mensaje": "True"})    
-                    else:
-                        return Response({"mensaje": "False"})        
-            except solicitud.DoesNotExist:
-                return Response({"mensaje": "False"})
             except Exception as e: 
                 return Response({"mensaje": "False"})

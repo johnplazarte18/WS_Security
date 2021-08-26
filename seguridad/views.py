@@ -1,3 +1,4 @@
+from typing_extensions import Required
 from django.core.files.base import ContentFile
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -26,6 +27,13 @@ class Anomalia(APIView):
                             json_historial.append(object_json)
                         else:
                             raise Exception
+                elif('historial_id' in request.GET):
+                    unHistorial = historial.objects.get(id = request.GET['historial_id'])
+                    object_json = self.jsonHistorial(unHistorial)
+                    if(object_json != None):
+                            json_historial.append(object_json)
+                    else:
+                        raise Exception
                 else:
                     for h in historial.objects.all():    
                         object_json = self.jsonHistorial(h)
@@ -34,6 +42,8 @@ class Anomalia(APIView):
                         else:
                             raise Exception
                 return Response({"historial": json_historial})
+            except historial.DoesNotExist:
+                return Response({"mensaje": "No existe el historial."})
             except Exception as e:
                 return Response({"mensaje": "Sucedió un error al obtener los datos, por favor intente nuevamente."})
 

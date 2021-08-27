@@ -1,0 +1,9 @@
+[
+    {
+      "model": "seguridad.solicitud",
+      "pk": 1,
+      "fields": {
+        "estado": false
+      }
+    }
+  ]

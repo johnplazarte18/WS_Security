@@ -33,6 +33,14 @@ class Anomalia(APIView):
                             json_historial.append(object_json)
                     else:
                         raise Exception
+                elif('tipo_ultimo' in request.GET):
+                    lsHistorial = historial.objects.filter(tipo = request.GET['tipo_ultimo']).order_by('-id')
+                    unHistorial = lsHistorial[0]
+                    object_json = self.jsonHistorial(unHistorial)
+                    if(object_json != None):
+                            json_historial.append(object_json)
+                    else:
+                        raise Exception
                 else:
                     for h in historial.objects.all():    
                         object_json = self.jsonHistorial(h)
@@ -50,11 +58,11 @@ class Anomalia(APIView):
         try:
             json_evidencias = list()
             for e in evidencias.objects.filter(unHistorial_id = historial.id):
-                #encoded_string = "data:image/PNG;base64," + str(base64.b64encode(open(str(e.ruta_foto.url)[1:], "rb").read()))[2:][:-1]
+                encoded_string = "data:image/PNG;base64," + str(base64.b64encode(open(str(e.ruta_foto.url)[1:], "rb").read()))[2:][:-1]
                 evidencia = {
                     "evidencia_id": e.id,
                     "hora": str(e.hora),
-                    "foto": 'encoded_string'
+                    "foto": encoded_string
                 }
                 json_evidencias.append(evidencia)
             un_historial = {
@@ -82,12 +90,6 @@ class Anomalia(APIView):
                     unHistorial.fecha = json_data['fecha']
                     unHistorial.tipo = json_data['tipo_historial']
                     unHistorial.save()
-                    if(json_data['tipo_historial'] == 'Solicitado'):
-                        if('solicitud_id' in json_data):
-                            unaSolicitud = solicitud.objects.get(id = json_data['solicitud_id'])
-                            unaSolicitud.estado = True
-                            unaSolicitud.historial_id = unHistorial.id
-                            unaSolicitud.save() 
                     for e in range(len(json_data['evidencias'])):
                         unaEvidencia = evidencias()
                         unaEvidencia.unHistorial = unHistorial
@@ -104,8 +106,6 @@ class Anomalia(APIView):
                     return Response({"historial_id": unHistorial.id})
             except componentes.DoesNotExist:
                 return Response({"mensaje": "No existe el componente."})
-            except solicitud.DoesNotExist:
-                return Response({"mensaje": "No existe la solicitud."})
             except Exception as e:
                 return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
 
@@ -195,57 +195,27 @@ class Sistema(APIView):
     
 class Solicitud(APIView):
     
-    # GET 1 (este es para la app móvil)
-    # http://127.0.0.1:8000/api-seguridad/solicitud/?solicitud_id=4
-    # GET 2 (este es para el arduino)
-    # # http://127.0.0.1:8000/api-seguridad/solicitud/?estado=False
+    # http://127.0.0.1:8000/api-seguridad/solicitud/
     def get(self, request, format = None):
         if request.method == 'GET':
             try:
                 with transaction.atomic():
-                    json_solicitud = list()
-                    if('solicitud_id' in request.GET):
-                        solicitudes = solicitud.objects.get(id = request.GET['solicitud_id'])
-                        json_solicitud.append(self.buildJsonSolici(solicitudes))
-                        return Response({"solicitudes": json_solicitud})    
-                    elif('estado' in request.GET):
-                        solicitudes = solicitud.objects.filter(estado = request.GET['estado'])
-                        for s in solicitudes:
-                            json_solicitud.append(self.buildJsonSolici(s))
-                        return Response({"solicitudes": json_solicitud})   
-                    else:
-                        solicitudes = solicitud.objects.all()
-                        for s in solicitudes:
-                            json_solicitud.append(self.buildJsonSolici(s))
-                        return Response({"solicitudes": json_solicitud})  
-            except solicitud.DoesNotExist:
-                return Response({"mensaje": "No existen solicitudes."})
+                        solicitudes = solicitud.objects.all().first()
+                        return Response({"solicitud": solicitudes.estado})        
             except Exception as e: 
-                return Response({"mensaje": "Sucedió un error al realizar la transacción, por favor intente nuevamente."})
+                return Response({"solicitud": "Sucedió un error, por favor intente nuevamente."})
     
-    def buildJsonSolici(self, solicitud):
-        una_solicitud = {
-            "solicitud_id": solicitud.id,
-            "usuario_id": solicitud.unUsuario.id,
-            "historial_id": solicitud.historial_id,
-            "estado": solicitud.estado
-        }
-        return una_solicitud
-
     # http://127.0.0.1:8000/api-seguridad/solicitud/
-    def post(self, request, format = None):
-        if request.method == 'POST':
+    def put(self, request, format = None):
+        if request.method == 'PUT':
             try:
                 with transaction.atomic():
                     json_data = json.loads(request.body.decode('utf-8'))
-                    if('usuario_id' in json_data):
-                        unaSolicitud = solicitud()
-                        unUsuario = usuarios()
-                        unUsuario.id = json_data['usuario_id']
-                        unaSolicitud.unUsuario = unUsuario
-                        unaSolicitud.estado = False
+                    if('estado' in json_data):
+                        unaSolicitud = solicitud.objects.all().first()
+                        unaSolicitud.estado = json_data['estado']
                         unaSolicitud.save()
-                        return Response({"solicitud_id": unaSolicitud.id})    
+                        return Response({"mensaje": "True"})    
                     else:
                         return Response({"mensaje": "False"})    
             except Exception as e: 

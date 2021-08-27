@@ -19,6 +19,4 @@ class evidencias(models.Model):
     ruta_foto = models.ImageField(upload_to="Evidencias", null=True, blank=False)
 
 class solicitud(models.Model):
-    unUsuario = models.ForeignKey(usuarios, on_delete=models.PROTECT)
-    historial_id = models.IntegerField(null=True, blank=True)
     estado = models.BooleanField()

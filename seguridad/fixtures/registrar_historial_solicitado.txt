@@ -2,7 +2,6 @@
         "componente_id": 1,
         "fecha": "2021-08-26",
         "tipo_historial": "Solicitado",
-	"solicitud_id": 1,
         "evidencias":
                     [   {
                             "hora": "12:19:20",

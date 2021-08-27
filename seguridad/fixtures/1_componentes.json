@@ -7,23 +7,5 @@
         "sector": "Lateral derecho",
         "estado": "True"
       }
-    },
-      {
-        "model": "seguridad.componentes",
-        "pk": 4,
-        "fields": {
-          "nombre": "Cámara",
-          "sector": "Frontal",
-          "estado": "True"
-        }
-      },
-      {
-        "model": "seguridad.componentes",
-        "pk": 5,
-        "fields": {
-          "nombre": "Buzzer",
-          "sector": "Frontal",
-          "estado": "True"
-        }
-      }
+    }
   ]

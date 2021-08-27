@@ -200,8 +200,8 @@ class Solicitud(APIView):
         if request.method == 'GET':
             try:
                 with transaction.atomic():
-                        solicitudes = solicitud.objects.all().first()
-                        return Response({"solicitud": solicitudes.estado})        
+                    solicitudes = solicitud.objects.all().first()
+                    return Response({"solicitud": solicitudes.estado})        
             except Exception as e: 
                 return Response({"solicitud": "Sucedió un error, por favor intente nuevamente."})
     

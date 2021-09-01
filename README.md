@@ -34,9 +34,9 @@ pip install djangorestframework
 ##### Sección 1
 
 Para ejecutar un archivo de datos se debe usar el siguiente comando dentro de la ruta: aplicación django/app/fixtures/file.json:
-    ```bash
-    python manage.py loaddata "nombre del archivo de datos".json
-    ```
+```bash
+python manage.py loaddata "nombre del archivo de datos".json
+```
 
 ##### Sección 2
 

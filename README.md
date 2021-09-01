@@ -62,5 +62,5 @@ python manage.py runserver
 
 ### Ahora puede dirigirse a elección de las rutas creadas en los archivos urls.py para acceder a las funcionalidades del web services
 ```bash
-api-seguridad/historial-anomalias
+http://127.0.0.1:8000/api-seguridad/historial-anomalias/
 ```

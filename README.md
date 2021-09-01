@@ -43,13 +43,13 @@ Para ejecutar un archivo de datos se debe usar el siguiente comando dentro de la
 Si ya tiene datos en ingresados en la base de datos, entonces:
 
     1. Eliminar el modelo de la app django que ya tiene datos en la base de datos.
-        ```bash
+        
         python manage.py migrate "Nombre de su app django" zero
-        ```
+        
     2. Migrar el modelo eliminado en la base de datos.
-        ```bash
+        
         python manage.py migrate "Nombre de su app django"
-        ```
+        
     3. Ejecutar el comando antes mencionado en la sección 1 para insertar los datos en la base de datos.
 
 ### Paso 8. Instalar el paquete "corsheaders" para el intercambio de recursos y se pueda consumir el web services desde otra aplicación
